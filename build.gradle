@@ -1,0 +1,102 @@
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'maven-publish'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+}
+
+group = 'fr.arinonia'
+version = '0.1.0'
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    withJavadocJar()
+    withSourcesJar()
+}
+
+javafx {
+    version = '21'
+    modules = ['javafx.controls', 'javafx.graphics']
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+javadoc {
+    options {
+        encoding = 'UTF-8'
+        addStringOption('Xdoclint:none', '-quiet')
+        addStringOption('charset', 'UTF-8')
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            pom {
+                name = 'FxDesktopLib'
+                description = 'A modern, theme-aware JavaFX component library'
+                url = 'https://github.com/Arinonia/fx-desktop-lib'
+
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'arinonia'
+                        name = 'Arinonia'
+                        email = 'arinonia.dev@gmail.com'
+                    }
+                }
+
+                scm {
+                    connection = 'scm:git:git://github.com/Arinonia/fx-desktop-lib.git'
+                    developerConnection = 'scm:git:ssh://github.com/Arinonia/fx-desktop-lib.git'
+                    url = 'https://github.com/Arinonia/fx-desktop-lib'
+                }
+            }
+        }
+    }
+}
+
+// Task to create a fat jar with all dependencies
+tasks.register('fatJar', Jar) {
+    archiveClassifier = 'all'
+
+    from sourceSets.main.output
+
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest {
+        attributes(
+                'Implementation-Title': project.name,
+                'Implementation-Version': project.version
+        )
+    }
+}
