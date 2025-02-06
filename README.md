@@ -44,7 +44,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'fr.arinonia:fx-desktop-lib:1.0.0'
+    implementation 'fr.arinonia:fx-desktop-lib:0.1.0'
 }
 ```
 
